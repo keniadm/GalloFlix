@@ -10,7 +10,7 @@ public class Genre
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     //Coloca automático a chave primária
-    public int Id { get; set; }
+    public byte Id { get; set; }
     
     [Display(Name = "Nome")]
     //Display é o que aparece na tela para o usuário e não está ligado ao banco
