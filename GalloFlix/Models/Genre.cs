@@ -21,4 +21,5 @@ public class Genre
     [StringLength(30, ErrorMessage = "O Nome deve possuir no máximo 30 caracteres")]
     //StringLength é o máximo de caracteres
     public string Name { get; set; }    
+    public ICollection<MovieGenre> Movies { get; set; }
 }

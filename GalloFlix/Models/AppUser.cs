@@ -14,4 +14,6 @@ public class AppUser : IdentityUser
 
     [StringLength(200)]
     public string ProfilePicture { get; set; }
+    public ICollection<MovieComment> Comments { get; set; }
+    public ICollection<MovieRating> Ratings { get; set; }
 }
