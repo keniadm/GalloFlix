@@ -11,7 +11,7 @@ public class MovieRating
     public Movie Movie { get; set; }
 
     [Key, Column(Order = 2)]
-    public int UserId { get; set; }
+    public string UserId { get; set; }
     [ForeignKey("UserId")]
     public AppUser User { get; set; }
 
