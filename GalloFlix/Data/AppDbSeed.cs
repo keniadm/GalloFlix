@@ -66,7 +66,7 @@ public class AppDbSeed
                 RoleId = roles[0].Id
             }
         };
-        builder.Entity<IdentityRole<string>>().HasData(userRoles);
+        builder.Entity<IdentityUserRole<string>>().HasData(userRoles);
         #endregion
     }     
 }

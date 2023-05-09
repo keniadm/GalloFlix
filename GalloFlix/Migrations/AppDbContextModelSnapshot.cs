@@ -168,6 +168,29 @@ namespace GalloFlix.Migrations
                         .HasDatabaseName("RoleNameIndex");
 
                     b.ToTable("Roles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "5d71c040-1ea2-4dae-870f-b822b14ab149",
+                            ConcurrencyStamp = "f173facd-7566-4846-aff8-84763ac61b67",
+                            Name = "Administrador",
+                            NormalizedName = "ADMINISTRADOR"
+                        },
+                        new
+                        {
+                            Id = "0bbf8808-fcfe-42b9-9c2c-c8cee930c6b0",
+                            ConcurrencyStamp = "f0fb207b-3db3-4323-9ad8-91d5ed278f45",
+                            Name = "Moderador",
+                            NormalizedName = "MODERADOR"
+                        },
+                        new
+                        {
+                            Id = "62b037e4-8fff-41d1-a354-04c9e56e2fc1",
+                            ConcurrencyStamp = "0c7f731a-e939-425d-917d-9d04d6bc4606",
+                            Name = "Usuário",
+                            NormalizedName = " USUÁRIO"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -321,6 +344,13 @@ namespace GalloFlix.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("UserRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            UserId = "c1a4460b-4fac-4fbd-8675-0b8904c6c049",
+                            RoleId = "5d71c040-1ea2-4dae-870f-b822b14ab149"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
@@ -359,6 +389,28 @@ namespace GalloFlix.Migrations
                         .HasColumnType("varchar(200)");
 
                     b.HasDiscriminator().HasValue("AppUser");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "c1a4460b-4fac-4fbd-8675-0b8904c6c049",
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "b3437ecc-a979-4c3d-b5b0-342772edc31b",
+                            Email = "keniademarchi@gmail.com",
+                            EmailConfirmed = true,
+                            LockoutEnabled = false,
+                            NormalizedEmail = "KENIADEMARCHI@GMAIL.COM",
+                            NormalizedUserName = "KENNER",
+                            PasswordHash = "AQAAAAEAACcQAAAAECuvmMOyI8ea+czabhAPvOB4zlFqfenO35Zo5MPHnu0U4aVszl1CEWFkusC9sd+AQQ==",
+                            PhoneNumber = "14997705293",
+                            PhoneNumberConfirmed = true,
+                            SecurityStamp = "4559ad36-6185-4d42-afe1-391a7704fbd4",
+                            TwoFactorEnabled = false,
+                            UserName = "Kenner",
+                            DateOfBirth = new DateTime(2005, 11, 11, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Name = "Kênia De Marchi",
+                            ProfilePicture = "/img/users/avatar.png"
+                        });
                 });
 
             modelBuilder.Entity("GalloFlix.Models.MovieComment", b =>
