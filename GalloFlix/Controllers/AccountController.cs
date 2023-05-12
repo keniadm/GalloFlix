@@ -1,31 +1,34 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
-namespace GalloFlix.Controllers
+namespace GalloFlix.Controllers;
+
+[Authorize(Roles = "Administrador")]
+public class AccountController : Controller
 {
-    public class AccountController : Controller
+    private readonly ILogger<AccountController> _logger;
+
+    public AccountController(ILogger<AccountController> logger)
     {
-        private readonly ILogger<AccountController> _logger;
+        _logger = logger;
+    }
 
-        public AccountController(ILogger<AccountController> logger)
-        {
-            _logger = logger;
-        }
+    public IActionResult Index()
+    {
+        return View();
+    }
 
-        public IActionResult Index()
-        {
-            return View();
-        }
+    [HttpGet]
+    [AllowAnonymous]
+    public IActionResult Login(string returnUrl)
+    {
+        return View();
+    }
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View("Error!");
-        }
+    [HttpPost]
+    [AllowAnonymous]
+    public IActionResult Login()
+    {
+        return View();
     }
 }
