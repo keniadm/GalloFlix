@@ -15,6 +15,5 @@ public class LoginDto
     [Display(Name = "Manter Conectado?")]
     public bool RememberMe { get; set; }
 
-
     public string ReturnUrl { get; set; }
 }

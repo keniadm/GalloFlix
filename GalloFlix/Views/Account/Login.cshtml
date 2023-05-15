@@ -1,7 +1,39 @@
-﻿@{
+﻿@model GalloFlix.DataTransferObjects.LoginDto
+@{
     ViewData["Title"] = "Login";
 }
 
 <div class="text-center">
     <h1 class="display-4">Login</h1>
 </div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <form method="post" class="mt-4">
+                <div asp-validation-summary="All" class="text-danger"></div>
+                <input type="hidden" asp-for="ReturnUrl">
+                <div class="mb-3">
+                    <label asp-for="Email" class="form-label"></label>
+                    <input asp-for="Email" class="form-control">
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Password" class="form-label"></label>
+                    <input asp-for="Password" class="form-control">
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+                <div class="mb-3 form-check">
+                    <input asp-for="RememberMe" type="checkbox" class="form-check-input">
+                    <label class="form-check-label" asp-for="RememberMe"></label>
+                </div>
+                <button type="submit" class="btn btn-primary">Entrar</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <partial name="_ValidationScriptsPartial"></partial>
+}
