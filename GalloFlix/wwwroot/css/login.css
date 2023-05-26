@@ -1,0 +1,24 @@
+.forgetPassword {
+    text-decoration: none;
+}
+
+.forgetPassword:hover {
+    text-decoration: underline;
+}
+
+.border-text {
+    position: relative;
+    margin-top: 30px;
+    height: 25px;
+    border-top: 1px solid gray;
+    color: black;
+}
+
+.border-text::after {
+    content: "Novo por Aqui?";
+    position: absolute;
+    background-color: white;
+    top: -13px;
+    left: 33.9%;
+    padding: 0 10px;
+}
