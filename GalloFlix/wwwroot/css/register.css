@@ -1,0 +1,16 @@
+.border-text {
+    position: relative;
+    margin-top: 30px;
+    height: 25px;
+    border-top: 1px solid gray;
+    color: black;
+}
+
+.border-text::after {
+    content: "Já possui uma Conta?";
+    position: absolute;
+    background-color: white;
+    top: -13px;
+    left: 28%;
+    padding: 0 10px;
+}
