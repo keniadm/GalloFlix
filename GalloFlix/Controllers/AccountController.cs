@@ -1,6 +1,7 @@
 using System.Net.Mail;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Encodings.Web;
 using GalloFlix.DataTransferObjects;
 using GalloFlix.Models;
 using GalloFlix.Services;
@@ -128,11 +129,31 @@ public class AccountController : Controller
                     "ConfirmEmail", "Account", new { userId = userId, code = code},
                     protocol: Request.Scheme
                 );
+
+                await _userManager.AddToRoleAsync(user, "Usuário");
+
+                await _emailSender.SendEmailAsync(
+                    email: register.Email,
+                    subject: "GalloFlix - Criação de Conta",
+                    htmlMessage: $"Por favor, confirme a criação de sua conta <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>Clicando Aqui</a>"
+                );
+
+                return RedirectToAction("RegisterConfirmation");
+            }
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
             }
         }
         return View(register);
     }
 
+    [HttpGet]
+    public IActionResult RegisterConfirmation()
+    {
+        return View();
+    }
+    
     private bool IsValidEmail(string email) 
     {
         try
