@@ -1,8 +1,38 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model List<GalloFlix.Models.Movie>
+@{
+    ViewData["Title"] = "Home";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="album py-5">
+    <div class="text-center mb-5">
+        <h1 class="display-4">Tudo sobre o mundo dos Filmes</h1>
+    </div>
+
+    <div class="container">
+
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-3">
+        @foreach (Movie movie in Model)
+        {            
+            <div class="col">
+                <div class="card shadow-sm">
+                    <img class="bd-placeholder-img card-img-top" width="100%" height="400"
+                    src="@movie.Image">
+                    <div class="card-body">
+                        <p class="card-text text-center">@movie.Title</p>
+                        <div class="d-flex align-items-center mb-2">
+                            @foreach (MovieGenre genre in movie.Genres)
+                            {
+                                <span class="badge bg-secondary me-2">@genre.Genre.Name</span>
+                            }
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-body-secondary">@(movie.AgeRating == 0 ? "Livre" : movie.AgeRating + " anos")</small>
+                            <small class="text-body-secondary">@movie.HourDuration</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        </div>
+    </div>
 </div>

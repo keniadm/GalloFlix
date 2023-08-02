@@ -4,59 +4,54 @@
 }
 
 @section Styles{
-    <link rel="stylesheet" href="~/css/login.css">
-
+    <link rel="stylesheet" href="~/css/account.css">
 }
 
-<div class="text-center">
-    <h1 class="display-4">Login</h1>
-</div>
-
-<div class="container">
-    <div class="row">
-        <div class="col-md-6 col-lg-4 m-auto">
-            <form method="post" class="mt-4">
-                <div asp-validation-summary="All" class="text-danger" hidden></div>
-                <input type="hidden" asp-for="ReturnUrl">
-
-                <div class="mb-3">
-                    <label asp-for="Email" class="form-label"></label>
-                    <input asp-for="Email" class="form-control">
-                    <span asp-validation-for="Email" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="Password" class="form-label"></label>
-                    <input asp-for="Password" class="form-control">
-                    <span asp-validation-for="Password" class="text-danger" id="is-invalid"></span>
-                </div>
-
-                <div class="mb-3 form-check">
-                    <input asp-for="RememberMe" type="checkbox" class="form-check-input">
-                    <label class="form-check-label" asp-for="RememberMe"></label>
-                </div>
-
-                <button type="submit" class="w-100 btn btn-primary">Entrar</button>
-
-                <a asp-action="Forget" class="d-block text-center mt-3 forgetPassword">Esqueceu sua Senha?</a>
-
-                <div class="border-text"></div>
-
-                <a asp-action="Register" class="w-100 btn btn-success mt-1">Criar Conta</a>
-
-            </form>
-        </div>
+<form method="post">
+    <div class="text-center mb-5">
+        <img src="~/img/logo.png" alt="Logo" width="250">
     </div>
-</div>
+    <input type="hidden" asp-for="ReturnUrl">
+    <div asp-validation-summary="All" class="text-danger" hidden></div>
+
+    <div class="mb-3">
+        <label asp-for="Email" class="form-label"></label>
+        <input asp-for="Email" class="form-control">
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Password" class="form-label"></label>
+        <input asp-for="Password" class="form-control">
+        <span asp-validation-for="Password" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3 form-check">
+        <input asp-for="RememberMe" type="checkbox" class="form-check-input">
+        <label class="form-check-label" asp-for="RememberMe"></label>
+    </div>
+
+    <button type="submit" class="w-100 btn btn-primary">Entrar</button>
+
+    <a asp-action="Forget" class="d-block text-center mt-3 forgetPassword">Esqueceu sua Senha?</a>
+
+    <div class="separator">
+        <div class="line"></div>
+            <h6>Novo por Aqui?</h6>
+        <div class="line"></div>
+    </div>
+
+    <a asp-action="Register" class="w-100 btn btn-success mt-1">Criar Conta</a>
+</form>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial"></partial>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@10"></script>
     <script>
         let mensagemErro = '';
         $('.validation-summary-errors ul li').each(function () {
             mensagemErro += $(this).text() + '<br>';
-        })
+        });
         if (mensagemErro != '') {
             Swal.fire(
                 'Acesso Negado',
@@ -64,6 +59,5 @@
                 'error'
             );
         }
-
     </script>
 }

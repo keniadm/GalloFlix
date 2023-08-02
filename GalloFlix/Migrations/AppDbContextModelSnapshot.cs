@@ -172,22 +172,22 @@ namespace GalloFlix.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "5d71c040-1ea2-4dae-870f-b822b14ab149",
-                            ConcurrencyStamp = "f173facd-7566-4846-aff8-84763ac61b67",
+                            Id = "fe0414d6-adfb-4fc3-a67b-20acedfd8050",
+                            ConcurrencyStamp = "a4b0baae-1c59-49d4-b32f-65996f753ca4",
                             Name = "Administrador",
                             NormalizedName = "ADMINISTRADOR"
                         },
                         new
                         {
-                            Id = "0bbf8808-fcfe-42b9-9c2c-c8cee930c6b0",
-                            ConcurrencyStamp = "f0fb207b-3db3-4323-9ad8-91d5ed278f45",
+                            Id = "a47d212a-855a-4782-81ea-0891e361fdc6",
+                            ConcurrencyStamp = "ae5bd87d-8447-4ad5-9c53-70f1795e4a84",
                             Name = "Moderador",
                             NormalizedName = "MODERADOR"
                         },
                         new
                         {
-                            Id = "62b037e4-8fff-41d1-a354-04c9e56e2fc1",
-                            ConcurrencyStamp = "0c7f731a-e939-425d-917d-9d04d6bc4606",
+                            Id = "5c7d875f-6296-46a2-ae1a-9a0f7f229608",
+                            ConcurrencyStamp = "98ea4b36-bb6a-417c-a428-d359723fe790",
                             Name = "Usuário",
                             NormalizedName = " USUÁRIO"
                         });
@@ -348,8 +348,8 @@ namespace GalloFlix.Migrations
                     b.HasData(
                         new
                         {
-                            UserId = "c1a4460b-4fac-4fbd-8675-0b8904c6c049",
-                            RoleId = "5d71c040-1ea2-4dae-870f-b822b14ab149"
+                            UserId = "ceccece7-bdfd-4314-a46a-4f617a67e481",
+                            RoleId = "fe0414d6-adfb-4fc3-a67b-20acedfd8050"
                         });
                 });
 
@@ -393,22 +393,22 @@ namespace GalloFlix.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "c1a4460b-4fac-4fbd-8675-0b8904c6c049",
+                            Id = "ceccece7-bdfd-4314-a46a-4f617a67e481",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "b3437ecc-a979-4c3d-b5b0-342772edc31b",
-                            Email = "keniademarchi@gmail.com",
+                            ConcurrencyStamp = "79d5bdd5-1ee8-4963-8d19-215cff7028ef",
+                            Email = "admin@gmail.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
-                            NormalizedEmail = "KENIADEMARCHI@GMAIL.COM",
-                            NormalizedUserName = "KENNER",
-                            PasswordHash = "AQAAAAEAACcQAAAAECuvmMOyI8ea+czabhAPvOB4zlFqfenO35Zo5MPHnu0U4aVszl1CEWFkusC9sd+AQQ==",
-                            PhoneNumber = "14997705293",
+                            NormalizedEmail = "ADMIN@GMAIL.COM",
+                            NormalizedUserName = "ADMIN",
+                            PasswordHash = "AQAAAAEAACcQAAAAEBVzapW3H3UhkMU/xztdalK/1JTEcS2pJdTuxgSRT1yYMOuiUwjZABYa9uYv1x7Lgg==",
+                            PhoneNumber = "14912345678",
                             PhoneNumberConfirmed = true,
-                            SecurityStamp = "4559ad36-6185-4d42-afe1-391a7704fbd4",
+                            SecurityStamp = "1f06b8a8-b1d7-4a79-89c5-99d5140c166d",
                             TwoFactorEnabled = false,
-                            UserName = "Kenner",
+                            UserName = "Admin",
                             DateOfBirth = new DateTime(2005, 11, 11, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Name = "Kênia De Marchi",
+                            Name = "Seu Nome Completo",
                             ProfilePicture = "/img/users/avatar.png"
                         });
                 });

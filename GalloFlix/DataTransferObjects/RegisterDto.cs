@@ -30,4 +30,3 @@ public class RegisterDto
     [Compare("Password", ErrorMessage = "As Senhas não Conferem.")]
     public string ConfirmPassword { get; set; }
 }
-

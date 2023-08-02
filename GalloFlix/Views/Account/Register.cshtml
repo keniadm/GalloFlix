@@ -4,69 +4,69 @@
 }
 
 @section Styles{
-    <link rel="stylesheet" href="~/css/register.css">
-
+    <link rel="stylesheet" href="~/css/account.css">
 }
 
-<div class="text-center">
-    <h1 class="display-4">Criar Conta de Acesso</h1>
-</div>
+<form class="form-register" method="post">
+    <div class="text-center mb-4">
+        <img src="~/img/logo.png" alt="Logo" width="250">
+        <h1 class="mt-2">Criar Conta de Acesso</h1>
+    </div>
 
-<div class="container">
+    <div asp-validation-summary="All" class="text-danger" hidden></div>
+
     <div class="row">
-        <div class="col-md-6 col-lg-4 m-auto">
-            <form method="post" class="mt-4">
-                <div asp-validation-summary="All" class="text-danger" hidden></div>
-
-                <div class="mb-3">
-                    <label asp-for="Name" class="form-label"></label>
-                    <input asp-for="Name" class="form-control">
-                    <span asp-validation-for="Name" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="Email" class="form-label"></label>
-                    <input asp-for="Email" class="form-control">
-                    <span asp-validation-for="Email" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="DateOfBirth" class="form-label"></label>
-                    <input asp-for="DateOfBirth" class="form-control">
-                    <span asp-validation-for="DateOfBirth" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="Password" class="form-label"></label>
-                    <input asp-for="Password" class="form-control">
-                    <span asp-validation-for="Password" class="text-danger" id="is-invalid"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="ConfirmPassword" class="form-label"></label>
-                    <input asp-for="ConfirmPassword" class="form-control">
-                    <span asp-validation-for="ConfirmPassword" class="text-danger" id="is-invalid"></span>
-                </div>
-
-                <button type="submit" class="w-100 btn btn-primary">Criar Conta</button>
-
-                <div class="border-text"></div>
-
-                <a asp-action="Login" class="w-100 btn btn-success mt-1">Entrar</a>
-
-            </form>
+        <div class="col-lg-8 mb-3">
+            <label asp-for="Name" class="form-label"></label>
+            <input asp-for="Name" class="form-control">
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+        <div class="col-lg-4 mb-3">
+            <label asp-for="DateOfBirth" class="form-label"></label>
+            <input asp-for="DateOfBirth" class="form-control">
+            <span asp-validation-for="DateOfBirth" class="text-danger"></span>
         </div>
     </div>
-</div>
+
+    <div class="mb-3">
+        <label asp-for="Email" class="form-label"></label>
+        <input asp-for="Email" class="form-control">
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-6 mb-3">
+            <label asp-for="Password" class="form-label"></label>
+            <input asp-for="Password" class="form-control">
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+
+        <div class="col-lg-6 mb-3">
+            <label asp-for="ConfirmPassword" class="form-label"></label>
+            <input asp-for="ConfirmPassword" class="form-control">
+            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+        </div>
+    </div>
+
+    <button type="submit" class="w-100 btn btn-primary mt-1">Criar Conta</button>
+
+    <div class="separator">
+        <div class="line"></div>
+            <h6>Já possui uma Conta?</h6>
+        <div class="line"></div>
+    </div>
+
+    <a asp-action="Login" class="w-100 btn btn-success mt-1">Entrar</a>
+</form>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial"></partial>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@10"></script>
     <script>
         let mensagemErro = '';
         $('.validation-summary-errors ul li').each(function () {
             mensagemErro += $(this).text() + '<br>';
-        })
+        });
         if (mensagemErro != '') {
             Swal.fire(
                 'Problemas ao Criar Conta',
@@ -74,6 +74,5 @@
                 'error'
             );
         }
-
     </script>
 }

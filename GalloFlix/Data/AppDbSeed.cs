@@ -37,14 +37,14 @@ public class AppDbSeed
         List<AppUser> users = new(){
             new AppUser(){
                 Id = Guid.NewGuid().ToString(),
-                Name = "Kênia De Marchi",
+                Name = "Seu Nome Completo",
                 DateOfBirth = DateTime.Parse("11/11/2005"),
-                Email = "keniademarchi@gmail.com",
-                NormalizedEmail = "KENIADEMARCHI@GMAIL.COM",
-                UserName = "Kenner",
-                NormalizedUserName = "KENNER",
+                Email = "admin@gmail.com",
+                NormalizedEmail = "ADMIN@GMAIL.COM",
+                UserName = "Admin",
+                NormalizedUserName = "ADMIN",
                 LockoutEnabled = false,
-                PhoneNumber = "14997705293",
+                PhoneNumber = "14912345678",
                 PhoneNumberConfirmed = true,
                 EmailConfirmed = true,
                 ProfilePicture = "/img/users/avatar.png"

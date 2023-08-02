@@ -13,12 +13,14 @@ public class EmailSender : IEmailSender
         string fromMail = "gallozord@outlook.com";
         string fromPassword = "@Etec123#";
 
-        MailMessage message = new();
-        message.From = new MailAddress(fromMail);
-        message.Subject = subject;
+        MailMessage message = new()
+        {
+            From = new MailAddress(fromMail),
+            Subject = subject,
+            Body = "<html><body>" + htmlMessage + "</body></html>",
+            IsBodyHtml = true
+        };
         message.To.Add(new MailAddress(email));
-        message.Body = "<html><body>" + htmlMessage + "</body></html>";
-        message.IsBodyHtml = true;
         var smtpClient = new SmtpClient("smtp-mail.outlook.com") 
         {
             Port = 587,

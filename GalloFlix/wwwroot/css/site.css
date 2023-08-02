@@ -1,18 +1,81 @@
 html {
   font-size: 14px;
-}
-
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-html {
   position: relative;
   min-height: 100%;
 }
 
 body {
   margin-bottom: 60px;
+}
+
+.bi {
+  vertical-align: -.125em;
+  fill: currentColor;
+}
+
+.btn-bd-primary {
+  --bd-red-bg: darkred;
+  --bd-red-rgb: 112.520718, 44.062154, 249.437846;
+
+  --bs-btn-font-weight: 600;
+  --bs-btn-color: var(--bs-white);
+  --bs-btn-bg: var(--bd-red-bg);
+  --bs-btn-border-color: var(--bd-red-bg);
+  --bs-btn-hover-color: var(--bs-white);
+  --bs-btn-hover-bg: rgb(99, 5, 5);
+  --bs-btn-hover-border-color: rgb(99, 5, 5);
+  --bs-btn-focus-shadow-rgb: var(--bd-red-rgb);
+  --bs-btn-active-color: var(--bs-btn-hover-color);
+  --bs-btn-active-bg: darkred;
+  --bs-btn-active-border-color: darkred;
+}
+.bd-mode-toggle {
+  z-index: 1500;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+
+  .bd-placeholder-img-lg {
+    font-size: 3.5rem;
+  }
+}
+
+.navbar-brand{
+  font-size: 24px !important;
+  color: darkred;
+}
+
+a {
+  color: var(--bs-body-color);
+}
+
+.text-logo {
+  color: var(--bs-body-color);
+}
+
+.loader.simple-loader {
+  background-color: rgba(0, 0, 0, 0.9);
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  text-align: center;  
+  overflow: hidden !important;
+  right: 0px;
+  z-index: 1500;
+}
+
+.loader.simple-loader img{
+  left: -200px;
+  width: 25%;
+}
+
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  white-space: nowrap;
+  line-height: 60px;
 }

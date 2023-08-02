@@ -1,0 +1,43 @@
+@model GalloFlix.DataTransferObjects.ForgetDto
+@{
+    ViewData["Title"] = "Recuperar Senha";
+}
+
+@section Styles{
+    <link rel="stylesheet" href="~/css/account.css">
+}
+
+<form method="post">
+    <div class="text-center mb-3">
+        <img src="~/img/logo.png" alt="Logo" width="250">
+        <h1 class="mt-5">Recuperar Senha</h1>
+    </div>
+    <div asp-validation-summary="All" class="text-danger" hidden></div>
+
+    <div class="mb-3">
+        <label asp-for="Email" class="form-label"></label>
+        <input asp-for="Email" class="form-control">
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="w-100 btn btn-primary">Enviar Email</button>
+
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial"></partial>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+    <script>
+        let mensagemErro = '';
+        $('.validation-summary-errors ul li').each(function () {
+            mensagemErro += $(this).text() + '<br>';
+        });
+        if (mensagemErro != '') {
+            Swal.fire(
+                'Problemas ao Recuperar Senha',
+                mensagemErro,
+                'error'
+            );
+        }
+    </script>
+}

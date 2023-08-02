@@ -1,0 +1,23 @@
+@model bool
+@{
+    ViewData["Title"] = "Confirmação de Conta";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/account.css">
+}
+
+<div class="form-register w-100 m-auto">
+    <div class="text-center">
+        <img src="~/img/logo.png" alt="Logo" width="250">
+        @if (Model)
+        {
+            <h5 class="my-3 fw-normal">Conta Confirmada!</h5>
+            <h6 class="my-3 fw-normal">Obrigado por confirmar seu email. Clique <a asp-action="Login">aqui</a> para entrar.</h6>
+        }
+        else {
+            <h5 class="my-3 fw-normal">Ocorreu um Problema</h5>
+            
+        }
+    </div>
+</div>
