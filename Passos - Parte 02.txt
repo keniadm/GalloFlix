@@ -1,0 +1,2371 @@
+-- Para criar a solução
+dotnet new sln --name GalloFlix
+
+
+-- Para criar o projeto
+dotnet new mvc -f net6.0 -o GalloFlix
+
+
+-- Para adicionar o projeto à solução
+dotnet sln add GalloFlix\GalloFlix.csproj
+
+
+-- Abrir o arquivo GalloFlix.csproj e fazer a alteração do configuração Nullabe:
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MySql.Data" Version="6.10.9" />
+  </ItemGroup>
+
+</Project>
+
+
+-- Instalar os pacotes do Entity - para acesso a dados
+dotnet add package Microsoft.EntityFrameworkCore --version 6.0.16
+dotnet add package Pomelo.EntityFrameworkCore.MySql --version 6.0.2
+dotnet add package Microsoft.EntityFrameworkCore.Design --version 6.0.16
+
+
+-- Instalar o pacote do Identity - para gestão de usuários
+dotnet add package Microsoft.AspNetCore.Identity.EntityFrameworkCore --version 6.0.16
+
+
+-- Pasta Models
+ Criar as classes (Botão Direito na pasta Models e escolher a opção 'New # Add > Class'):
+ - AppUser
+ - Genre
+ - Movie
+ - MovieComment
+ - MovieGenre
+ - MovieRating
+
+ 
+-- Abrir e alterar o arquivo Genre.cs:
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+namespace GalloFlix.Models;
+
+[Table("Genre")]
+public class Genre
+{
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public byte Id { get; set; }
+    
+    [Display(Name = "Nome")]
+    [Required(ErrorMessage = "O nome do Gênero é obrigatório")]
+    [StringLength(30, ErrorMessage = "O Nome deve possuir no máximo 30 caracteres")]
+    public string Name { get; set; }    
+    public ICollection<MovieGenre> Movies { get; set; }
+}
+
+
+-- Abrir e alterar o arquivo Movie.cs:
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+namespace GalloFlix.Models;
+
+[Table("Movie")]
+public class Movie
+{
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public int Id { get; set; }
+
+    [Display(Name = "Título")]
+    [Required(ErrorMessage = "O Título é obrigatório")]
+    [StringLength(100, ErrorMessage = "O Título deve possuir no máximo 100 caracteres")]
+    public string Title { get; set; }
+
+    [Display(Name = "Título Original")]
+    [Required(ErrorMessage = "O Título Original é obrigatório")]
+    [StringLength(100, ErrorMessage = "O Título Original deve possuir no máximo 100 caracteres")]
+    public string OriginalTitle { get; set; }
+
+    [Display(Name = "Sinopse")]
+    [Required(ErrorMessage = "A Sinopse é obrigatória")]
+    [StringLength(8000, ErrorMessage = "A Sinopse deve possuir no máximo 5000 caracteres")]
+    public string Synopsis { get; set; }
+
+    [Column(TypeName = "Year")]
+    [Display(Name = "Ano de Estreia")]
+    [Required(ErrorMessage = "O Ano de Estreia é obrigatório")]
+    public Int16 MovieYear { get; set; }
+
+    [Display(Name = "Duração (em minutos)")]
+    [Required(ErrorMessage = "A Duração é obrigatória")]
+    public Int16 Duration { get; set; }
+
+    [Display(Name = "Classificação Etária")]
+    [Required(ErrorMessage = "A Classificação Etária é obrigatória")]
+    public byte AgeRating { get; set; }
+
+    [StringLength(200)]
+    [Display(Name = "Foto")]
+    public string Image { get; set; }
+
+    [NotMapped]
+    [Display(Name = "Duração")]
+    public string HourDuration { get {
+        return TimeSpan.FromMinutes(Duration) .ToString(@"%h'h 'mm'min'");
+    }}
+
+    public ICollection<MovieComment> Comments { get; set; }
+    public ICollection<MovieGenre> Genres { get; set; }
+    public ICollection<MovieRating> Ratings { get; set; }
+
+}
+
+
+-- Abrir e alterar o arquivo AppUser.cs:
+using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Identity;
+
+namespace GalloFlix.Models;
+public class AppUser : IdentityUser
+{
+    [Required]
+    [StringLength(60)]
+    public string Name { get; set; }
+
+    [Required]
+    [DataType(DataType.Date)]
+    public DateTime DateOfBirth { get; set; }   
+
+    [StringLength(200)]
+    public string ProfilePicture { get; set; }
+    public ICollection<MovieComment> Comments { get; set; }
+    public ICollection<MovieRating> Ratings { get; set; }
+}
+
+
+-- Abrir e alterar o arquivo MovieComment.cs:
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace GalloFlix.Models;
+[Table("MovieComment")]
+public class MovieComment
+{
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public int Id { get; set; }
+
+    [Required]
+    public int MovieId { get; set; }
+    [ForeignKey("MovieId")]
+    public Movie Movie { get; set; } //propriedade de navegação
+
+    [Required]
+    public string UserId { get; set; } 
+    [ForeignKey("UserId")]
+    public AppUser User { get; set; }  
+
+    [Required]
+    [StringLength(1000)]
+    public string CommentText { get; set; }
+
+    [Required]
+    public DateTime CommentDate { get; set; }
+}
+
+
+-- Abrir e alterar o arquivo MovieGenre.cs:
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace GalloFlix.Models;
+[Table("MovieGenre")]
+public class MovieGenre
+{
+    [Key, Column(Order = 1)]
+    public int MovieId { get; set; }
+    [ForeignKey("MovieId")]
+    public Movie Movie { get; set; }
+
+    [Key, Column(Order = 2)]
+    public byte GenreId { get; set; }
+    [ForeignKey("GenreId")]
+    public Genre Genre { get; set; }
+}
+
+
+-- Abrir e alterar o arquivo MovieRating.cs:
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace GalloFlix.Models;
+[Table("MovieRating")]
+public class MovieRating
+{
+    [Key, Column(Order = 1)]
+    public int MovieId { get; set; }
+    [ForeignKey("MovieId")]
+    public Movie Movie { get; set; }
+
+    [Key, Column(Order = 2)]
+    public string UserId { get; set; }
+    [ForeignKey("UserId")]
+    public AppUser User { get; set; }
+
+    [Required]
+    public byte RatingValue { get; set; }
+
+    [Required]
+    public DateTime RatingDate { get; set; }
+}
+
+
+-- Criar uma pasta com o nome Data e dentro duas classes com os nomes:
+ - AppDbContext
+ - AppDbSeed
+ 
+ 
+-- Abrir e alterar o arquivo AppDbContext.cs:
+using GalloFlix.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+
+namespace GalloFlix.Data;
+public class AppDbContext : IdentityDbContext
+{
+    public AppDbContext(DbContextOptions options) : base(options)
+    {
+    }
+
+    public DbSet<AppUser> AppUsers { get; set; }
+    public DbSet<Genre> Genres { get; set;}
+    public DbSet<Movie> Movies { get; set; }
+    public DbSet<MovieComment> MovieComments { get; set; } 
+    public DbSet<MovieGenre> MovieGenres { get; set; }
+    public DbSet<MovieRating> MovieRating { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder builder) //void não tem retorno
+    {
+        base.OnModelCreating(builder);
+        AppDbSeed appDbSeed = new(builder);
+
+        //FluentAPI
+        #region Personalização do Identity
+        builder.Entity<IdentityUser>(b => {
+            b.ToTable("Users");
+        });
+        builder.Entity<IdentityUserClaim<string>>(b => {
+            b.ToTable("UserClaims");
+        });
+        builder.Entity<IdentityUserLogin<string>>(b => {
+            b.ToTable("UserLogins");
+        });
+        builder.Entity<IdentityUserToken<string>>(b => {
+            b.ToTable("UserTokens");
+        });
+        builder.Entity<IdentityRole>(b => {
+            b.ToTable("Roles");
+        });
+        builder.Entity<IdentityRoleClaim<string>>(b => {
+            b.ToTable("RoleClaims");
+        });
+        builder.Entity<IdentityUserRole<string>>(b => {
+            b.ToTable("UserRoles");
+        });
+        #endregion
+
+        #region Many To Many - MovieComment
+        builder.Entity<MovieComment>()
+            .HasOne(mc => mc.Movie)
+            .WithMany(m => m.Comments)
+            .HasForeignKey(mc => mc.MovieId);
+
+        builder.Entity<MovieComment>()
+            .HasOne(mc => mc.User)
+            .WithMany(u => u.Comments)
+            .HasForeignKey(mc => mc.UserId);
+        #endregion
+
+        #region Many To Many - MovieGenre
+        // Definição de Chave Primária Composta
+        builder.Entity<MovieGenre>().HasKey(
+            mg => new { mg.MovieId, mg.GenreId }
+        );
+
+        builder.Entity<MovieGenre>()
+            .HasOne(mg => mg.Movie)
+            .WithMany(m => m.Genres)
+            .HasForeignKey(mg => mg.MovieId);
+
+        builder.Entity<MovieGenre>()
+            .HasOne(mg => mg.Genre)
+            .WithMany(g => g.Movies)
+            .HasForeignKey(mg => mg.GenreId);
+        #endregion
+
+        #region Many To Many - MovieRating
+        builder.Entity<MovieRating>().HasKey(
+            mr => new { mr.MovieId, mr.UserId }
+        );
+
+        builder.Entity<MovieRating>()
+            .HasOne(mr => mr.Movie)
+            .WithMany(m => m.Ratings)
+            .HasForeignKey(mr => mr.MovieId);
+
+        builder.Entity<MovieRating>()
+            .HasOne(mr => mr.User)
+            .WithMany(u => u.Ratings)
+            .HasForeignKey(mr => mr.UserId);
+        #endregion
+    }
+}
+
+-- Abrir e alterar o arquivo AppDbSeed.cs:
+using GalloFlix.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+
+namespace GalloFlix.Data;
+
+public class AppDbSeed
+{
+    public AppDbSeed(ModelBuilder builder)
+    {
+        #region  Populate Roles - Perfis de Usuário
+        List<IdentityRole> roles = new()
+        {
+            new IdentityRole()
+            {
+               Id = Guid.NewGuid().ToString(),
+               Name = "Administrador",
+               NormalizedName = "ADMINISTRADOR" 
+            },
+            new IdentityRole()
+            {
+               Id = Guid.NewGuid().ToString(),
+               Name = "Moderador",
+               NormalizedName = "MODERADOR" 
+            },
+            new IdentityRole()
+            {
+               Id = Guid.NewGuid().ToString(),
+               Name = "Usuário",
+               NormalizedName = " USUÁRIO" 
+            }
+        };
+        builder.Entity<IdentityRole>().HasData(roles);
+        #endregion
+        
+        #region Populate AppUser - Usuários
+        List<AppUser> users = new(){
+            new AppUser(){
+                Id = Guid.NewGuid().ToString(),
+                Name = "Seu Nome Completo",
+                DateOfBirth = DateTime.Parse("11/11/2005"),
+                Email = "admin@gmail.com",
+                NormalizedEmail = "ADMIN@GMAIL.COM",
+                UserName = "Admin",
+                NormalizedUserName = "ADMIN",
+                LockoutEnabled = false,
+                PhoneNumber = "14912345678",
+                PhoneNumberConfirmed = true,
+                EmailConfirmed = true,
+                ProfilePicture = "/img/users/avatar.png"
+            }
+        };
+        foreach (var user in users)
+        {
+            PasswordHasher<AppUser> pass = new();
+            user.PasswordHash = pass.HashPassword(user, "@Etec123");
+        }
+        builder.Entity<AppUser>().HasData(users);
+        #endregion
+    
+        #region Populate UserRole - Usuário com Perfil
+        List<IdentityUserRole<string>> userRoles = new()
+        {
+            new IdentityUserRole<string>() {
+                UserId = users[0].Id,
+                RoleId = roles[0].Id
+            }
+        };
+        builder.Entity<IdentityUserRole<string>>().HasData(userRoles);
+        #endregion
+    }     
+}
+
+
+-- Abrir e alterar o arquivo appsettings.json:
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*",
+  "ConnectionStrings": {
+    "GalloFlix": "server=localhost;port=3306;database=galloflix;uid=root;pwd=''"
+  }
+}
+
+
+-- Abrir e alterar o arquivo Program.cs:
+using GalloFlix.Data;
+using GalloFlix.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container.
+builder.Services.AddControllersWithViews();
+
+// Objetos auxiliares de conexão
+string conn = builder.Configuration.GetConnectionString("GalloFlix");
+var version = ServerVersion.AutoDetect(conn);
+
+// Serviço de conexão com banco de dados
+builder.Services.AddDbContext<AppDbContext>( options =>
+    options.UseMySql(conn, version)
+);
+
+// Serviço de gestão de usuário - identity
+builder.Services.AddIdentity<AppUser, IdentityRole>()
+    .AddEntityFrameworkStores<AppDbContext>()
+    .AddDefaultTokenProviders();
+
+var app = builder.Build();
+
+// Configure the HTTP request pipeline.
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Home/Error");
+    app.UseHsts();
+}
+
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+
+app.UseRouting();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.Run();
+
+
+-- Salvar todos os arquivos, abrir o terminal e testar a codificação
+dotnet build
+
+
+-- Neste ponto precisando do servidor de banco de dados em execução, desta forma abra o Xampp Control Panel e clique para iniciar o processo do MySql.
+
+
+-- Caso não apresente nenhum erro, vamos criar o banco de dados usando migração, aqui teste primeiro se a ferramenta de migração está instalada
+No terminal: dotnet ef
+
+ Caso 1 - Apareceu uma mensagem vermelha informando que o comando ef não é reconhecido, neste caso, execute o comando: dotnet tool install --global dotnet-ef
+ 
+ Caso 2 - Apareceu algumas instruções e subindo um pouco o terminal um unicornio!!!! Estamos prontos para continuar.
+ 
+- Para criar uma migração execute no terminal:
+dotnet ef migrations add criando-banco
+
+- Para executar a migração no banco de dados, execute no terminal:
+dotnet ef database update
+
+
+-- Salvar todos os arquivos, abrir o terminal e execute o projeto
+dotnet watch run
+
+
+-- Se tudo estiver funcionando até aqui, estamos prontos para continuar
+
+
+-- Pasta Views\Shared crie um arquivo com nome _Loading.cshtml:
+<div id="loading">
+    <div class="loader simple-loader">
+        <img src="~/img/loader.gif">
+        <h1 class="text-center text-white">&nbsp;&nbsp; Processando...</h1>
+    </div>
+</div>
+
+
+-- Pasta Views\Shared crie um arquivo com nome _LoginPartial.cshtml:
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<AppUser> signInManager
+@inject UserManager<AppUser> userManager
+
+<ul class="navbar-nav">
+    @if (signInManager.IsSignedIn(User))
+    {
+        <li class="nav-item">
+            <a asp-controller="Account" asp-action="Profile" class="nav-link"
+                title="Gerenciar minha Conta">
+                Olá @User.Identity?.Name!
+            </a>
+        </li>
+        <li class="nav-item">
+            <form class="form-inline" asp-controller="Account"
+                asp-action="Logout">
+                <button type="submit" class="nav-link btn btn-link">
+                    Sair
+                </button>
+            </form>
+        </li>
+    }
+    else
+    {
+        <li class="nav-item">
+            <a asp-controller="Account" asp-action="Login" class="nav-link">
+                Login
+            </a>
+        </li>
+    }
+</ul>
+
+
+-- Pasta Views\Shared crie um arquivo com nome _StyleSwitcher.cshtml:
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+    <symbol id="check2" viewBox="0 0 16 16">
+        <path
+            d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z" />
+    </symbol>
+    <symbol id="circle-half" viewBox="0 0 16 16">
+        <path d="M8 15A7 7 0 1 0 8 1v14zm0 1A8 8 0 1 1 8 0a8 8 0 0 1 0 16z" />
+    </symbol>
+    <symbol id="moon-stars-fill" viewBox="0 0 16 16">
+        <path
+            d="M6 .278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278z" />
+        <path
+            d="M10.794 3.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387a1.734 1.734 0 0 0-1.097 1.097l-.387 1.162a.217.217 0 0 1-.412 0l-.387-1.162A1.734 1.734 0 0 0 9.31 6.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387a1.734 1.734 0 0 0 1.097-1.097l.387-1.162zM13.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.156 1.156 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.156 1.156 0 0 0-.732-.732l-.774-.258a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732L13.863.1z" />
+    </symbol>
+    <symbol id="sun-fill" viewBox="0 0 16 16">
+        <path
+            d="M8 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z" />
+    </symbol>
+</svg>
+
+<div class="dropdown position-fixed bottom-0 end-0 mb-2 me-2 bd-mode-toggle">
+    <button class="btn btn-bd-primary py-2 dropdown-toggle d-flex align-items-center" id="bd-theme" type="button"
+        aria-expanded="false" data-bs-toggle="dropdown" aria-label="Toggle theme (auto)">
+        <svg class="bi my-1 theme-icon-active" width="1em" height="1em">
+            <use href="#circle-half"></use>
+        </svg>
+        <span class="visually-hidden" id="bd-theme-text">Toggle theme</span>
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="bd-theme-text">
+        <li>
+            <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light"
+                aria-pressed="false">
+                <svg class="bi me-2 opacity-50 theme-icon" width="1em" height="1em">
+                    <use href="#sun-fill"></use>
+                </svg>
+                Claro
+                <svg class="bi ms-auto d-none" width="1em" height="1em">
+                    <use href="#check2"></use>
+                </svg>
+            </button>
+        </li>
+        <li>
+            <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark"
+                aria-pressed="false">
+                <svg class="bi me-2 opacity-50 theme-icon" width="1em" height="1em">
+                    <use href="#moon-stars-fill"></use>
+                </svg>
+                Escuro
+                <svg class="bi ms-auto d-none" width="1em" height="1em">
+                    <use href="#check2"></use>
+                </svg>
+            </button>
+        </li>
+        <li>
+            <button type="button" class="dropdown-item d-flex align-items-center active" data-bs-theme-value="auto"
+                aria-pressed="true">
+                <svg class="bi me-2 opacity-50 theme-icon" width="1em" height="1em">
+                    <use href="#circle-half"></use>
+                </svg>
+                Automático
+                <svg class="bi ms-auto d-none" width="1em" height="1em">
+                    <use href="#check2"></use>
+                </svg>
+            </button>
+        </li>
+    </ul>
+</div>
+
+
+-- Pasta Views\Shared apague o arquivo _Layout.cshtml.css
+
+
+-- Pasta Views\Shared arquivo _Layout.cshtml
+<!DOCTYPE html>
+<html lang="pt-br" data-bs-theme="auto">
+
+<head>
+    <script src="~/js/color-modes.js"></script>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GalloFlix | @ViewData["Title"]</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="icon" type="image/x-icon" href="~/img/logosmall.png">
+
+    @await RenderSectionAsync("Styles", required: false)
+    <meta name="theme-color" content="#712cf9">
+</head>
+
+<body>
+    <partial name="_StyleSwitcher"></partial>
+    <partial name="_Loading"></partial>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm border-bottom box-shadow mb-3">
+            <div class="container-fluid">
+                <a class="navbar-brand fw-bold" asp-controller="Home" asp-action="Index">
+                    GALLO<span class="text-logo">FLIX</span>
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
+                    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="Index">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="Privacy">Privacidade</a>
+                        </li>
+                    </ul>
+                    <partial name="_LoginPartial"></partial>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2023 - GalloFlix - <a asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+
+</html>
+
+
+-- Pasta wwwroot\css arquivo site.css:
+html {
+  font-size: 14px;
+  position: relative;
+  min-height: 100vh;
+}
+
+body {
+  min-height: 100vh;
+}
+
+.bi {
+  vertical-align: -.125em;
+  fill: currentColor;
+}
+
+.btn-bd-primary {
+  --bd-red-bg: darkred;
+  --bd-red-rgb: 112.520718, 44.062154, 249.437846;
+
+  --bs-btn-font-weight: 600;
+  --bs-btn-color: var(--bs-white);
+  --bs-btn-bg: var(--bd-red-bg);
+  --bs-btn-border-color: var(--bd-red-bg);
+  --bs-btn-hover-color: var(--bs-white);
+  --bs-btn-hover-bg: rgb(99, 5, 5);
+  --bs-btn-hover-border-color: rgb(99, 5, 5);
+  --bs-btn-focus-shadow-rgb: var(--bd-red-rgb);
+  --bs-btn-active-color: var(--bs-btn-hover-color);
+  --bs-btn-active-bg: darkred;
+  --bs-btn-active-border-color: darkred;
+}
+.bd-mode-toggle {
+  z-index: 1500;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+
+  .bd-placeholder-img-lg {
+    font-size: 3.5rem;
+  }
+}
+
+.navbar-brand{
+  font-size: 24px !important;
+  color: darkred;
+}
+
+a {
+  color: var(--bs-body-color);
+}
+
+.text-logo {
+  color: var(--bs-body-color);
+}
+
+.loader.simple-loader {
+  background-color: rgba(0, 0, 0, 0.9);
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  text-align: center;  
+  overflow: hidden !important;
+  right: 0px;
+  z-index: 1500;
+}
+
+.loader.simple-loader img{
+  left: -200px;
+  width: 25%;
+}
+
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  white-space: nowrap;
+  line-height: 60px;
+}
+
+.swal2-popup {
+  background: var(--bs-body-bg) !important;
+}
+
+.swal2-title, .swal2-content {
+  color: var(--bs-body-color) !important;
+}
+
+
+-- Pasta wwwroot\css criar um arquivo account.css:
+main {
+    min-height: calc(100vh - 140px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+form {
+    width: 400px !important;
+}
+
+.form-register {
+    width: 600px !important;
+}
+
+.forgetPassword{
+    text-decoration: none;
+}
+
+.forgetPassword:hover{
+    text-decoration: underline;
+}
+
+.separator{
+    display: flex;
+    align-items: center;
+    color: var(--bs-body-color);
+    margin: 15px 0;
+  }
+  
+  .separator h6{
+    padding: 0 10px;
+    font-weight: normal;
+    color: var(--bs-body-color);
+    margin-bottom: 0.2rem;
+  }
+  
+  .separator .line{
+    flex: 1;
+    height: 1px;
+    background-color: var(--bs-body-color);
+  }
+  
+
+-- Pasta wwwroot, criar um pasta img e fazer o download dos arquivos disponíveis em: https://drive.google.com/drive/folders/1_Eah4I8UKRwkmE9ocCyf_pFvd6JxgzZV?usp=drive_link
+
+
+-- Pasta wwwroot\js alterar o arquivo site.js:
+function showLoading() {
+    const loader = document.querySelector('.loader');
+    if (loader != null) {
+        loader.classList.remove('d-none');
+    }
+};
+
+function hideLoading() {
+    const loader = document.querySelector('.loader');
+    if (loader != null) {
+        loader.classList.add('d-none');
+    }
+};
+
+$(document).ready(function () {
+    hideLoading();
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    var form = document.querySelector('form');
+    console.log(form);
+    if (form != undefined){ 
+        form.addEventListener('submit', function() {
+            if ($(form).valid() === true) 
+                showLoading();
+        })
+    }
+});
+
+
+-- Pasta wwwroot\js criar um arquivo color-modes.js:
+/*!
+ * Color mode toggler for Bootstrap's docs (https://getbootstrap.com/)
+ * Copyright 2011-2023 The Bootstrap Authors
+ * Licensed under the Creative Commons Attribution 3.0 Unported License.
+ */
+
+(() => {
+  'use strict'
+
+  const getStoredTheme = () => localStorage.getItem('theme-GalloFlix')
+  const setStoredTheme = theme => localStorage.setItem('theme-GalloFlix', theme)
+
+  const getPreferredTheme = () => {
+    const storedTheme = getStoredTheme()
+    if (storedTheme) {
+      return storedTheme
+    }
+
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+  }
+
+  const setTheme = theme => {
+    if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      document.documentElement.setAttribute('data-bs-theme', 'dark')
+    } else {
+      document.documentElement.setAttribute('data-bs-theme', theme)
+    }
+  }
+
+  setTheme(getPreferredTheme())
+
+  const showActiveTheme = (theme, focus = false) => {
+    const themeSwitcher = document.querySelector('#bd-theme')
+
+    if (!themeSwitcher) {
+      return
+    }
+
+    const themeSwitcherText = document.querySelector('#bd-theme-text')
+    const activeThemeIcon = document.querySelector('.theme-icon-active use')
+    const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
+    const svgOfActiveBtn = btnToActive.querySelector('svg use').getAttribute('href')
+
+    document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
+      element.classList.remove('active')
+      element.setAttribute('aria-pressed', 'false')
+    })
+
+    btnToActive.classList.add('active')
+    btnToActive.setAttribute('aria-pressed', 'true')
+    activeThemeIcon.setAttribute('href', svgOfActiveBtn)
+    const themeSwitcherLabel = `${themeSwitcherText.textContent} (${btnToActive.dataset.bsThemeValue})`
+    themeSwitcher.setAttribute('aria-label', themeSwitcherLabel)
+
+    if (focus) {
+      themeSwitcher.focus()
+    }
+  }
+
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+    const storedTheme = getStoredTheme()
+    if (storedTheme !== 'light' && storedTheme !== 'dark') {
+      setTheme(getPreferredTheme())
+    }
+  })
+
+  window.addEventListener('DOMContentLoaded', () => {
+    showActiveTheme(getPreferredTheme())
+
+    document.querySelectorAll('[data-bs-theme-value]')
+      .forEach(toggle => {
+        toggle.addEventListener('click', () => {
+          const theme = toggle.getAttribute('data-bs-theme-value')
+          setStoredTheme(theme)
+          setTheme(theme)
+          showActiveTheme(theme, true)
+        })
+      })
+  })
+})()
+
+
+-- Criar uma pasta com o nome DataTransferObjects e dentro quatro classes com os nomes
+ - ForgetDto
+ - LoginDto
+ - RegisterDto
+ - ResetPasswordDto
+ 
+ 
+-- Abrir e alterar o arquivo ForgetDto.cs:
+using System.ComponentModel.DataAnnotations;
+
+namespace GalloFlix.DataTransferObjects;
+
+public class ForgetDto
+{
+    [Required(ErrorMessage = "Por favor, informe seu Email")]
+    [EmailAddress(ErrorMessage = "Por favor, informe um Email Válido!")]
+    [StringLength(100, ErrorMessage = "O Email deve possuir no máximo 100 caracteres")]
+    [Display(Name = "Informe seu Email de Cadastro que enviaremos as instruções para recuperar sua senha")]
+    public string Email { get; set; }
+}
+
+
+-- Abrir e alterar o arquivo LoginDto.cs:
+using System.ComponentModel.DataAnnotations;
+
+namespace GalloFlix.DataTransferObjects;
+
+public class LoginDto
+{
+    [Display(Name = "Email ou nome de Usuário")]
+    [Required(ErrorMessage = "Por favor, informe seu email ou nome de usuário")]
+    public string Email { get; set; }
+
+    [Display(Name = "Senha de Acesso")]
+    [Required(ErrorMessage = "Por favor, informe sua senha")]
+    [DataType(DataType.Password)]
+    public string Password { get; set; }
+
+    [Display(Name = "Manter Conectado?")]
+    public bool RememberMe { get; set; }
+
+    public string ReturnUrl { get; set; }
+}
+
+
+-- Abrir e alterar o arquivo RegisterDto.cs:
+using System.ComponentModel.DataAnnotations;
+
+namespace GalloFlix.DataTransferObjects;
+
+public class RegisterDto
+{
+    [Display(Name = "Nome Completo")]
+    [Required(ErrorMessage = "Por favor, informe seu nome")]
+    [StringLength(60, ErrorMessage = "O nome deve possuir no máximo 60 caracteres")]
+    public string Name { get; set; }
+
+    [DataType(DataType.Date)]
+    [Display(Name = "Data de Nascimento")]
+    [Required(ErrorMessage = "Por favor, informe sua Data de Nascimento")]
+    public DateTime DateOfBirth { get; set; }
+
+    [Required(ErrorMessage = "Por favor, informe seu Email")]
+    [EmailAddress(ErrorMessage = "Por favor, informe um Email Válido!")]
+    [StringLength(100, ErrorMessage = "O Email deve possuir no máximo 100 caracteres")]
+    public string Email { get; set; }
+
+    [DataType(DataType.Password)]
+    [Display(Name = "Senha de Acesso")]
+    [Required(ErrorMessage = "Por favor, informe sua Senha de Acesso")]
+    [StringLength(20, MinimumLength = 6, ErrorMessage = "A Senha deve possuir no mínimo 6 e no máximo 20 caracteres")]
+    public string Password { get; set; }
+
+    [DataType(DataType.Password)]
+    [Display(Name = "Confirmar Senha de Acesso")]
+    [Compare("Password", ErrorMessage = "As Senhas não Conferem.")]
+    public string ConfirmPassword { get; set; }
+}
+
+
+-- Abrir e alterar o arquivo ResetPasswordDto.cs:
+using System.ComponentModel.DataAnnotations;
+
+namespace GalloFlix.DataTransferObjects;
+
+public class ResetPasswordDto
+{
+    public string Email { get; private set; }
+
+    [DataType(DataType.Password)]
+    [Display(Name = "Senha de Acesso")]
+    [Required(ErrorMessage = "Por favor, informe sua Senha de Acesso")]
+    [StringLength(20, MinimumLength = 6, ErrorMessage = "A Senha deve possuir no minimo 6 e no máximo 20 caracteres")]
+    public string Password { get; set; }
+
+    [DataType(DataType.Password)]
+    [Display(Name = "Confirmar Senha de Acesso")]
+    [Compare("Password", ErrorMessage = "As Senhas não Conferem.")]
+    public string ConfirmPassword { get; set; }
+
+    public string Code { get; private set; }
+
+    public ResetPasswordDto(string email, string code)
+    {
+      Email = email;
+      Code = code;
+      Password = string.Empty;
+      ConfirmPassword = string.Empty;
+    }
+}
+
+
+-- Criar uma pasta Helpers e dentro uma classe com o nome:
+ - TranslateIdentityErrors
+
+
+-- Abrir e alterar o arquivo TranslateIdentityErrors.cs:
+namespace GalloFlix.Helpers;
+
+public static class TranslateIdentityErrors
+{
+    public static string TranslateErrorMessage(string codeError)
+    {
+        string message = string.Empty;
+        switch (codeError)
+        {
+            case "DefaultError":
+                message = "Ocorreu um erro desconhecido.";
+                break;
+            case "ConcurrencyFailure":
+                message = "Falha de concorrência otimista, o objeto foi modificado.";
+                break;
+            case "InvalidToken":
+                message = "Token inválido.";
+                break;
+            case "LoginAlreadyAssociated":
+                message = "Já existe um usuário com este login.";
+                break;
+            case "InvalidUserName":
+                message = $"Este login é inválido, um login deve conter apenas letras ou dígitos.";
+                break;
+            case "InvalidEmail":
+                message = "E-mail inválido.";
+                break;
+            case "DuplicateUserName":
+                message = "Este login já está sendo utilizado.";
+                break;
+            case "DuplicateEmail":
+                message = $"Este email já está sendo utilizado.";
+                break;
+            case "InvalidRoleName":
+                message = "Esta permissão é inválida.";
+                break;
+            case "DuplicateRoleName":
+                message = "Esta permissão já está sendo Utilizada";
+                break;
+            case "UserAlreadyInRole":
+                message = "Usuário já possui esta permissão.";
+                break;
+            case "UserNotInRole":
+                message = "Usuário não tem esta permissão.";
+                break;
+            case "UserLockoutNotEnabled":
+                message = "Lockout não está habilitado para este usuário.";
+                break;
+            case "UserAlreadyHasPassword":
+                message = "Usuário já possui uma senha definida.";
+                break;
+            case "PasswordMismatch":
+                message = "Senha incorreta.";
+                break;
+            case "PasswordTooShort":
+                message = "Senha muito curta.";
+                break;
+            case "PasswordRequiresNonAlphanumeric":
+                message = "Senhas devem conter ao menos um caracter não alfanumérico.";
+                break;
+            case "PasswordRequiresDigit":
+                message = "Senhas devem conter ao menos um digito ('0'-'9').";
+                break;
+            case "PasswordRequiresLower":
+                message = "Senhas devem conter ao menos um caracter em caixa baixa ('a'-'z').";
+                break;
+            case "PasswordRequiresUpper":
+                message = "Senhas devem conter ao menos um caracter em caixa alta ('A'-'Z').";
+                break;
+            default:
+                message = "Ocorreu um erro desconhecido.";
+                break;
+        }
+        return message;
+    }
+}
+
+
+-- Criar uma pasta Services e dentro criar:
+ - Uma interface (botão direito do mouse sobre a pasta, New C# > Interface) com o nome IEmailSender;
+ - Uma classe (botão direito do mouse sobre a pasta, New C# > Class) com o nome EmailSender;
+ 
+ 
+-- Abrir e alterar o arquivo IEmailSender.cs:
+namespace GalloFlix.Services;
+public interface IEmailSender
+{
+    Task SendEmailAsync(string email, string subject, string htmlMessage);
+}
+
+
+-- Abrir e alterar o arquivo EmailSender.cs:
+using System.Net;
+using System.Net.Mail;
+
+namespace GalloFlix.Services;
+public class EmailSender : IEmailSender
+{
+    public EmailSender()
+    {
+    }
+
+    public async Task SendEmailAsync(string email, string subject, string htmlMessage)
+    {
+        string fromMail = "gallozord@outlook.com";
+        string fromPassword = "@Etec123#";
+
+        MailMessage message = new()
+        {
+            From = new MailAddress(fromMail),
+            Subject = subject,
+            Body = "<html><body>" + htmlMessage + "</body></html>",
+            IsBodyHtml = true
+        };
+        message.To.Add(new MailAddress(email));
+        var smtpClient = new SmtpClient("smtp-mail.outlook.com") 
+        {
+            Port = 587,
+            Credentials = new NetworkCredential(fromMail, fromPassword),
+            EnableSsl = true
+        };
+        await smtpClient.SendMailAsync(message);
+    }
+}
+
+
+-- Abrir e alterar o arquivo Program.cs para adicionar o serviço de email
+using GalloFlix.Data;
+using GalloFlix.Models;
+using GalloFlix.Services;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container.
+builder.Services.AddControllersWithViews();
+
+// Objetos auxiliares de Conexão
+string conn = builder.Configuration.GetConnectionString("GalloFlix");
+var version = ServerVersion.AutoDetect(conn);
+
+// Serviço de Conexão com banco de dados
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseMySql(conn, version)
+);
+
+// Serviço de Gestão de Usuário - Identity
+builder.Services.AddIdentity<AppUser, IdentityRole>()
+    .AddEntityFrameworkStores<AppDbContext>()
+    .AddDefaultTokenProviders();
+
+builder.Services.AddTransient<IEmailSender, EmailSender>();
+
+var app = builder.Build();
+
+// Configure the HTTP request pipeline.
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Home/Error");
+    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    app.UseHsts();
+}
+
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+
+app.UseRouting();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.Run();
+
+
+-- Criar dois controladores na pasta Controllers (Clique com o botão direito na pasta Controllers e escolher a opção: 'New C# > Controller'):
+ - AccountController
+ - AdminController
+ 
+ 
+-- Abrir e alterar o arquivo AdminController.cs:
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace GalloFlix.Controllers;
+[Authorize(Roles = "Administrador")]
+public class AdminController : Controller
+{
+    private readonly ILogger<AdminController> _logger;
+    public AdminController(ILogger<AdminController> logger)
+    {
+        _logger = logger;
+    }
+
+    public IActionResult Index()
+    {
+        return View();
+    }
+
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+    public IActionResult Error()
+    {
+        return View("Error!");
+    }
+}
+
+
+-- Abrir e alterar o arquivo AccountController.cs:
+using System.Net.Mail;
+using System.Security.Claims;
+using System.Text;
+using System.Text.Encodings.Web;
+using GalloFlix.DataTransferObjects;
+using GalloFlix.Helpers;
+using GalloFlix.Models;
+using GalloFlix.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
+
+namespace GalloFlix.Controllers;
+
+public class AccountController : Controller
+{
+    private readonly ILogger<AccountController> _logger;
+    private readonly SignInManager<AppUser> _signInManager;
+    private readonly UserManager<AppUser> _userManager;
+    private readonly IUserStore<AppUser> _userStore;
+    private readonly IUserEmailStore<AppUser> _emailStore;
+    private readonly IEmailSender _emailSender;
+
+    public AccountController(
+        ILogger<AccountController> logger,
+        SignInManager<AppUser> signInManager,
+        UserManager<AppUser> userManager,
+        IUserStore<AppUser> userStore,
+        IEmailSender emailSender
+)
+    {
+        _logger = logger;
+        _signInManager = signInManager;
+        _userManager = userManager;
+        _userStore = userStore;
+        _emailStore = GetEmailStore();
+        _emailSender = emailSender;
+    }
+
+    [Authorize(Roles = "Administrador")]
+    public IActionResult Index()
+    {
+        return View();
+    }
+
+    [HttpGet]
+    public IActionResult Login(string returnUrl)
+    {
+        LoginDto login = new();
+        login.ReturnUrl = returnUrl ?? Url.Content("~/");
+        return View(login);
+    }
+
+
+    [HttpPost]
+    public async Task<IActionResult> Login(LoginDto login)
+    {
+        if (ModelState.IsValid)
+        {
+            string userName = login.Email;
+            if (IsValidEmail(login.Email))
+            {
+                var user = await _userManager.FindByEmailAsync(login.Email);
+                if (user != null)
+                    userName = user.UserName;
+            }
+
+            var result = await _signInManager.PasswordSignInAsync(
+                userName, login.Password, login.RememberMe, lockoutOnFailure: true
+            );
+            if (result.Succeeded)
+            {
+                _logger.LogInformation($"Usuário {login.Email} acessou o sistema");
+                return LocalRedirect(login.ReturnUrl);
+            }
+            if (result.IsLockedOut)
+            {
+                _logger.LogWarning($"Usuário {login.Email} está bloqueado");
+                return RedirectToAction("Lockout");
+            }
+            ModelState.AddModelError("login", "Usuário e/ou Senha Inválidos!!!");
+        }
+        return View(login);
+    }
+
+
+    [HttpPost]
+    [Authorize]
+    public async Task<IActionResult> Logout()
+    {
+        _logger.LogInformation($"Usuário {ClaimTypes.Email} fez logoff");
+        await _signInManager.SignOutAsync();
+        return RedirectToAction("Index", "Home");
+    }
+
+
+    [HttpGet]
+    public IActionResult Register()
+    {
+        return View();
+    }
+
+
+    [HttpPost]
+    public async Task<IActionResult> Register(RegisterDto register)
+    {
+        if (ModelState.IsValid)
+        {
+            var user = Activator.CreateInstance<AppUser>();
+
+            user.Name = register.Name;
+            user.DateOfBirth = register.DateOfBirth;
+            user.Email = register.Email;
+
+            await _userStore.SetUserNameAsync(user, register.Email, CancellationToken.None);
+            await _emailStore.SetEmailAsync(user, register.Email, CancellationToken.None);
+            var result = await _userManager.CreateAsync(user, register.Password);
+
+            if (result.Succeeded)
+            {
+                _logger.LogInformation($"Novo usuário registrado com o email {user.Email}.");
+
+                var userId = await _userManager.GetUserIdAsync(user);
+                var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+                var callbackUrl = Url.Action(
+                    "ConfirmEmail", "Account",
+                    new { userId, code },
+                    protocol: Request.Scheme);
+
+                await _userManager.AddToRoleAsync(user, "Usuário");
+
+                await _emailSender.SendEmailAsync(register.Email, "EtecBook - Criação de Conta",
+                    $"Por favor, confirme a criação de sua conta <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicando aqui</a>.");
+
+                return RedirectToAction("RegisterConfirmation");
+            }
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, TranslateIdentityErrors.TranslateErrorMessage(error.Code));
+            }
+        }
+        return View(register);
+    }
+
+
+    [HttpGet]
+    public IActionResult RegisterConfirmation()
+    {
+        return View();
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> ConfirmEmail(string userId, string code)
+    {
+        if (userId == null || code == null)
+        {
+            return RedirectToAction("Index", "Home");
+        }
+
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null)
+        {
+            return NotFound($"Não foi possível localizar o usuário.");
+        }
+
+        code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(code));
+        var result = await _userManager.ConfirmEmailAsync(user, code);
+        return View(result.Succeeded);
+    }
+
+
+    [HttpGet]
+    public IActionResult Forget()
+    {
+        return View();
+    }
+
+
+    [HttpPost]
+    public async Task<IActionResult> Forget(ForgetDto forget)
+    {
+        if (ModelState.IsValid)
+        {
+            var user = await _userManager.FindByEmailAsync(forget.Email);
+            if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
+            {
+                // Não revelar que o usuário não existe ou que não está confirmado
+                return RedirectToAction("ForgotPasswordConfirmation");
+            }
+
+            var code = await _userManager.GeneratePasswordResetTokenAsync(user);
+            code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+            var callbackUrl = Url.Action(
+                action: "ResetPassword",
+                controller: "Account",
+                values: new { email = forget.Email, code = code },
+                protocol: Request.Scheme);
+
+            await _emailSender.SendEmailAsync(
+                email: forget.Email,
+                subject: "Recuperar Senha",
+                htmlMessage: $"Para definir uma nova senha <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clique aqui</a>.");
+
+            return RedirectToAction("ForgotPasswordConfirmation");
+        }
+        return View();
+    }
+
+
+    [HttpGet]
+    public IActionResult AccessDenied()
+    {
+        return View();
+    }
+
+
+    [HttpGet]
+    public IActionResult ForgotPasswordConfirmation()
+    {
+        return View();
+    }
+
+
+    [HttpGet]
+    public IActionResult ResetPassword(string email, string code)
+    {
+        if (code == null || string.IsNullOrEmpty(email))
+        {
+            return BadRequest("Solicitação Inválida!!!");
+        }
+        ResetPasswordDto reset = new
+        (
+            email: email,
+            code: Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(code))
+        );
+        return View(reset);
+    }
+
+
+    private IUserEmailStore<AppUser> GetEmailStore()
+    {
+        if (!_userManager.SupportsUserEmail)
+        {
+            throw new NotSupportedException("The default UI requires a user store with email support.");
+        }
+        return (IUserEmailStore<AppUser>)_userStore;
+    }
+
+
+    private static bool IsValidEmail(string email)
+    {
+        try
+        {
+            MailAddress m = new(email);
+            return true;
+        }
+        catch (FormatException)
+        {
+            return false;
+        }
+    }
+
+}
+
+
+-- Pasta Views criar duas pasta:
+ - Account
+ - Admin
+ 
+
+-- Pasta Views\Admin criar um arquivo Index.cshtml:
+@{
+    ViewData["Title"] = "Área Administrativa";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Área Administrativa</h1>
+</div>
+
+
+-- Pasta Views\Account criar os seguintes arquivos:
+ - AccessDenied.cshtml
+ - ConfirmEmail.cshtml
+ - Forget.cshtml
+ - ForgetConfirmation.cshtml
+ - Lockout.cshtml
+ - Login.cshtml
+ - Register.cshtml
+ - RegisterConfirmation.cshtml
+
+
+-- Abrir e alterar o arquivo AccessDenied.cshtml:
+@{
+    ViewData["Title"] = "Acesso Negado";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/account.css">
+}
+
+<div class="form-register">
+    <div class="text-center">
+        <img src="~/img/logo.png" alt="Logo" width="250">
+        <h1 class="my-3">@ViewBag.Title!!</13>
+        <h3 class="my-3 fw-normal">Você não possui permissão para acessar esse recurso</h3>
+    </div>
+</div>
+
+
+-- Abrir e alterar o arquivo ConfirmEmail.cshtml:
+@model bool
+@{
+    ViewData["Title"] = "Confirmação de Conta";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/account.css">
+}
+
+<div class="form-register w-100 m-auto">
+    <div class="text-center">
+        <img src="~/img/logo.png" alt="Logo" width="250">
+        @if (Model)
+        {
+            <h5 class="my-3 fw-normal">Conta Confirmada!</h5>
+            <h6 class="my-3 fw-normal">Obrigado por confirmar seu email. Clique <a asp-action="Login">aqui</a> para entrar.</h6>
+        }
+        else {
+            <h5 class="my-3 fw-normal">Ocorreu um Problema</h5>
+            
+        }
+    </div>
+</div>
+
+
+-- Abrir e alterar o arquivo Forget.cshtml:
+@model GalloFlix.DataTransferObjects.ForgetDto
+@{
+    ViewData["Title"] = "Recuperar Senha";
+}
+
+@section Styles{
+    <link rel="stylesheet" href="~/css/account.css">
+}
+
+<form method="post">
+    <div class="text-center mb-3">
+        <img src="~/img/logo.png" alt="Logo" width="250">
+        <h1 class="mt-5">Recuperar Senha</h1>
+    </div>
+    <div asp-validation-summary="All" class="text-danger" hidden></div>
+
+    <div class="mb-3">
+        <label asp-for="Email" class="form-label"></label>
+        <input asp-for="Email" class="form-control">
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="w-100 btn btn-primary">Enviar Email</button>
+
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial"></partial>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+    <script>
+        let mensagemErro = '';
+        $('.validation-summary-errors ul li').each(function () {
+            mensagemErro += $(this).text() + '<br>';
+        });
+        if (mensagemErro != '') {
+            Swal.fire(
+                'Problemas ao Recuperar Senha',
+                mensagemErro,
+                'error'
+            );
+        }
+    </script>
+}
+
+
+-- Abrir e alterar o arquivo ForgetConfirmation.cshtml:
+@{
+    ViewData["Title"] = "Recuperação de Senha";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/account.css">
+}
+
+<div class="form-register">
+    <div class="text-center">
+        <img src="~/img/logo.png" alt="Logo" width="250">
+        <h1 class="my-3">@ViewBag.Title!!</13>
+        <h3 class="my-3 fw-normal">Acesse o email informado para concluir o processo de recuperação de senha</h3>
+    </div>
+</div>
+
+
+-- Abrir e alterar o arquivo Lockout.cshtml:
+@{
+    ViewData["Title"] = "Usuário Bloqueado";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/account.css">
+}
+
+<div class="form-register w-100 m-auto" style="max-width: 600px;">
+    <div class="text-center">
+        <img src="~/img/logo.png" alt="Logo" width="250">
+        <h5 class="my-3 fw-normal">Usuário Bloqueado</h5>
+        <h6 class="my-3 fw-normal">Aguarde alguns minutos até o desbloqueio de sua conta</h6>
+    </div>
+</div>
+
+
+-- Abrir e alterar o arquivo Login.cshtml:
+@model GalloFlix.DataTransferObjects.LoginDto
+@{
+    ViewData["Title"] = "Login";
+}
+
+@section Styles{
+    <link rel="stylesheet" href="~/css/account.css">
+}
+
+<form method="post">
+    <div class="text-center mb-5">
+        <img src="~/img/logo.png" alt="Logo" width="250">
+    </div>
+    <input type="hidden" asp-for="ReturnUrl">
+    <div asp-validation-summary="All" class="text-danger" hidden></div>
+
+    <div class="mb-3">
+        <label asp-for="Email" class="form-label"></label>
+        <input asp-for="Email" class="form-control">
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Password" class="form-label"></label>
+        <input asp-for="Password" class="form-control">
+        <span asp-validation-for="Password" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3 form-check">
+        <input asp-for="RememberMe" type="checkbox" class="form-check-input">
+        <label class="form-check-label" asp-for="RememberMe"></label>
+    </div>
+
+    <button type="submit" class="w-100 btn btn-primary">Entrar</button>
+
+    <a asp-action="Forget" class="d-block text-center mt-3 forgetPassword">Esqueceu sua Senha?</a>
+
+    <div class="separator">
+        <div class="line"></div>
+            <h6>Novo por Aqui?</h6>
+        <div class="line"></div>
+    </div>
+
+    <a asp-action="Register" class="w-100 btn btn-success mt-1">Criar Conta</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial"></partial>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+    <script>
+        let mensagemErro = '';
+        $('.validation-summary-errors ul li').each(function () {
+            mensagemErro += $(this).text() + '<br>';
+        });
+        if (mensagemErro != '') {
+            Swal.fire(
+                'Acesso Negado',
+                mensagemErro,
+                'error'
+            );
+        }
+    </script>
+}
+
+
+-- Abrir e alterar o arquivo Register.cshtml:
+@model GalloFlix.DataTransferObjects.RegisterDto
+@{
+    ViewData["Title"] = "Criar Conta";
+}
+
+@section Styles{
+    <link rel="stylesheet" href="~/css/account.css">
+}
+
+<form class="form-register" method="post">
+    <div class="text-center mb-4">
+        <img src="~/img/logo.png" alt="Logo" width="250">
+        <h1 class="mt-2">Criar Conta de Acesso</h1>
+    </div>
+
+    <div asp-validation-summary="All" class="text-danger" hidden></div>
+
+    <div class="row">
+        <div class="col-lg-8 mb-3">
+            <label asp-for="Name" class="form-label"></label>
+            <input asp-for="Name" class="form-control">
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+        <div class="col-lg-4 mb-3">
+            <label asp-for="DateOfBirth" class="form-label"></label>
+            <input asp-for="DateOfBirth" class="form-control">
+            <span asp-validation-for="DateOfBirth" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Email" class="form-label"></label>
+        <input asp-for="Email" class="form-control">
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-6 mb-3">
+            <label asp-for="Password" class="form-label"></label>
+            <input asp-for="Password" class="form-control">
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+
+        <div class="col-lg-6 mb-3">
+            <label asp-for="ConfirmPassword" class="form-label"></label>
+            <input asp-for="ConfirmPassword" class="form-control">
+            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+        </div>
+    </div>
+
+    <button type="submit" class="w-100 btn btn-primary mt-1">Criar Conta</button>
+
+    <div class="separator">
+        <div class="line"></div>
+            <h6>Já possui uma Conta?</h6>
+        <div class="line"></div>
+    </div>
+
+    <a asp-action="Login" class="w-100 btn btn-success mt-1">Entrar</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial"></partial>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+    <script>
+        let mensagemErro = '';
+        $('.validation-summary-errors ul li').each(function () {
+            mensagemErro += $(this).text() + '<br>';
+        });
+        if (mensagemErro != '') {
+            Swal.fire(
+                'Problemas ao Criar Conta',
+                mensagemErro,
+                'error'
+            );
+        }
+    </script>
+}
+
+
+-- Abrir e alterar o arquivo RegisterConfirmation.cshtml:
+@{
+    ViewData["Title"] = "Confirmação de Conta";
+    @* Layout = "~/Views/Shared/_LayoutAccount.cshtml"; *@
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/account.css">
+}
+
+<div class="form-register">
+    <div class="text-center">
+        <img src="~/img/logo.png" alt="Logo" width="250">
+        <h1 class="my-3">Quase pronto!!</13>
+        <h3 class="my-3 fw-normal">Acesse o email informado para concluir a criação de sua conta</h3>
+    </div>
+</div>
+    
+	
+
+-- Abrir e alterar o arquivo HomeController.cs:
+using System.Diagnostics;
+using Microsoft.AspNetCore.Mvc;
+using GalloFlix.Models;
+using GalloFlix.Data;
+using Microsoft.EntityFrameworkCore;
+
+namespace GalloFlix.Controllers;
+
+public class HomeController : Controller
+{
+    private readonly ILogger<HomeController> _logger;
+    private readonly AppDbContext _context;
+
+    public HomeController(ILogger<HomeController> logger, AppDbContext context)
+    {
+        _logger = logger;
+        _context = context;
+    }
+
+    public IActionResult Index()
+    {
+        var movies = _context.Movies.Include(m => m.Genres).ThenInclude(g => g.Genre).ToList();
+        return View(movies);
+    }
+
+    public IActionResult Privacy()
+    {
+        return View();
+    }
+
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+    public IActionResult Error()
+    {
+        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+    }
+}
+
+
+-- Abrir e alterar o arquivo Views\Home\Index.cshtml:
+@model List<GalloFlix.Models.Movie>
+@{
+    ViewData["Title"] = "Home";
+}
+
+<div class="album py-5">
+    <div class="text-center mb-5">
+        <h1 class="display-4">Tudo sobre o mundo dos Filmes</h1>
+    </div>
+
+    <div class="container">
+
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-3">
+        @foreach (Movie movie in Model)
+        {            
+            <div class="col">
+                <div class="card shadow-sm">
+                    <img class="bd-placeholder-img card-img-top" width="100%" height="400"
+                    src="@movie.Image">
+                    <div class="card-body">
+                        <p class="card-text text-center">@movie.Title</p>
+                        <div class="d-flex align-items-center mb-2">
+                            @foreach (MovieGenre genre in movie.Genres)
+                            {
+                                <span class="badge bg-secondary me-2">@genre.Genre.Name</span>
+                            }
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-body-secondary">@(movie.AgeRating == 0 ? "Livre" : movie.AgeRating + " anos")</small>
+                            <small class="text-body-secondary">@movie.HourDuration</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+        </div>
+    </div>
+</div>
+
+
+-- Para a validação do jquery exibir o css de erro do bootstrap é necessário substituir as classes de erros das funções de validação. Abra os dois arquivos .js da pasta wwwroot\lib\jquery-validation-unobtrusive faça o seguinte:
+ - Pressione Ctrl+H para abrir a ferramenta de pesquisa e substituição
+ - Digite no caixa de "Find" a classe: input-validation-error e na caixa de "Replace" a classe "is-invalid"
+ - Ao lado da caixa de "Replace" existem dois icones, parando o mouse em cima por um tempo mostra o nome dos botões, clique no segundo "Replace All", para fazer duas alterações no arquivo.
+ - Realize esse procedimento nos dois arquivos .js da pasta mencionada.
+
+
+-- Abrir o arquivo Models\Movie.cs e acrescentar antes das listas e após a propriedade HourDuration a propriedade Classification:
+    [NotMapped]
+    [Display(Name = "Classificação Etária")]
+    public string Classification { get {
+        return AgeRating == 0 ? "Livre" : AgeRating + " anos";
+    } }
+
+
+-- Abrir o arquivo Controllers\HomeController.cs e acrescentar após o método Index o método abaixo:
+
+    public IActionResult Movie(int? id)
+    {
+        var movie = _context.Movies
+            .Where(m => m.Id == id)
+            .Include(m => m.Genres)
+            .ThenInclude(g => g.Genre)
+            .SingleOrDefault();
+        return View(movie);
+    }
+
+
+-- Abrir e alterar o arquivo Views\Home\Index.cshtml:
+@model List<GalloFlix.Models.Movie>
+@{
+    ViewData["Title"] = "Home";
+}
+
+<div class="album py-5">
+    <div class="text-center mb-5">
+        <h1 class="display-4">Tudo sobre o mundo dos Filmes</h1>
+    </div>
+
+    <div class="container">
+
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-3">
+        @foreach (Movie movie in Model)
+        {        
+            <a asp-controller="Home" asp-action="Movie" asp-route-id="@movie.Id"
+            class="text-decoration-none">
+                <div class="col">
+                    <div class="card shadow-sm">
+                        <img class="bd-placeholder-img card-img-top" width="100%" height="400"
+                        src="@movie.Image">
+                        <div class="card-body">
+                            <p class="card-text text-center">@movie.Title</p>
+                            <div class="d-flex align-items-center mb-2">
+                                @foreach (MovieGenre genre in movie.Genres)
+                                {
+                                    <span class="badge bg-secondary me-2">@genre.Genre.Name</span>
+                                }
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-body-secondary">@movie.Classification</small>
+                                <small class="text-body-secondary">@movie.HourDuration</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        }
+        </div>
+    </div>
+</div>
+
+
+-- Criar o arquivo abaixo na pasta Views\Home:
+ - Movie.cshtml
+
+
+-- Abrir e alterar o arquivo Views\Home\Movie.cshtml:
+@model GalloFlix.Models.Movie
+@{
+    ViewData["Title"] = "Home";
+}
+
+<div class="album py-5">
+    <div class="text-center mb-3">
+        <h1>@Model.Title</h1>
+        <h3>@Model.OriginalTitle</h1>
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3">
+                <img src="@Model.Image" alt="@Model.Title" class="img-fluid">
+            </div>
+            <div class="col-md-9">
+                <p>@Model.Synopsis</p>
+                <p>Duração: @Model.HourDuration</p>
+                <p>Classificação: @Model.Classification</p>
+                @foreach(MovieGenre movieGenre in Model.Genres)
+                {
+                    <span class="badge bg-secondary me-2">@movieGenre.Genre.Name</span>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+
+-- Pasta wwwroot\css alterar apenas as classes abaixo do arquivo site.css:
+html {
+  font-size: 14px;
+  position: relative;
+  min-height: 100vh;
+}
+
+body {
+  min-width: 100vh;
+}
+
+
+-- Criar o arquivo abaixo na pasta Views\Shared:
+ - _Navbar.cshtml
+
+
+-- Abrir e alterar o arquivo Views\Shared\_Navbar.cshtml:
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<AppUser> signInManager
+@inject UserManager<AppUser> userManager
+
+<header>
+    <nav class="navbar navbar-expand-sm navbar-toggleable-sm border-bottom box-shadow mb-3">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" asp-controller="Home" asp-action="Index">
+                GALLO<span class="text-logo">FLIX</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                <ul class="navbar-nav flex-grow-1">
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Home" asp-action="Index">Home</a>
+                    </li>
+                    @if (signInManager.IsSignedIn(User))
+                    {
+                        if (User.IsInRole("Administrador"))
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                                    aria-expanded="false">Administrativo</a>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a href="#" class="dropdown-item">Genêros</a>
+                                    </li>
+                                    <li>
+                                        <a href="#" class="dropdown-item">Filmes</a>
+                                    </li>
+                                    <li>
+                                        <a href="#" class="dropdown-item">Comentários</a>
+                                    </li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                    <li>
+                                        <a href="#" class="dropdown-item">Usuários</a>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
+                        if (User.IsInRole("Moderador"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">Comentários</a>
+                            </li>
+                        }
+                    }
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Home" asp-action="Privacy">Privacidade</a>
+                    </li>
+
+                </ul>
+                <partial name="_LoginPartial"></partial>
+            </div>
+        </div>
+    </nav>
+</header>
+
+
+-- Abrir e alterar o arquivo Views\Shared\_Layout.cshtml:
+<!DOCTYPE html>
+<html lang="pt-br" data-bs-theme="auto">
+
+<head>
+    <script src="~/js/color-modes.js"></script>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GalloFlix | @ViewData["Title"]</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="icon" type="image/x-icon" href="~/img/logosmall.png">
+
+    @await RenderSectionAsync("Styles", required: false)
+    <meta name="theme-color" content="#712cf9">
+</head>
+
+<body>
+    <partial name="_StyleSwitcher"></partial>
+    <partial name="_Loading"></partial>
+    <partial name="_Navbar"></partial>
+
+    <div class="container-fluid p-0">
+        <main role="main" class="pb-3 mb-5">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container-fluid">
+            &copy; @(DateTime.Now.Year == 2023 ? "2023" : "2023 - " + DateTime.Now.Year)
+            - Todos os direitos reservados GalloFlix -
+            <a asp-controller="Home" asp-action="Privacy">Termos de Privacidade</a>
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+
+</html>
+
+
+-- Criar o arquivo abaixo na pasta wwwroot\css:
+ - admin.css
+
+
+-- Abrir e alterar o arquivo wwwroot\css\admin.css:
+main {
+    min-height: 100vh;
+}
+
+.nav-link {
+    margin-bottom: 5px;
+}
+
+.nav-link:hover {
+    background-color: darkred !important;
+    color: white;
+}
+
+.nav-link.active {
+    background-color: rgb(104, 4, 4) !important; 
+    color: white;
+}
+
+.bi {
+    font-size: 20px;
+}
+
+
+-- Criar o arquivo abaixo na pasta Views\Shared:
+ - _LayoutAdmin.cshtml
+
+
+-- Abrir e incluir ao final o código abaixo no arquivo wwwroot\js\site.js:
+(() => {
+    'use strict';
+    if (document.querySelector('#sidebarToggler') != null) {
+        document.querySelector('#sidebarToggler').addEventListener('click', () => {
+            document.querySelector('#sidebar').classList.toggle('d-none')
+        })
+    }
+})()
+
+
+-- Abrir e alterar o arquivo Views\Shared\_LayoutAdmin.cshtml:
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<AppUser> signInManager
+@inject UserManager<AppUser> userManager
+@{
+    var user = await userManager.GetUserAsync(User);
+    string profilePicture = user.ProfilePicture ?? "~/img/users/no-photo.png";
+}
+
+<!DOCTYPE html>
+<html lang="pt-br" data-bs-theme="auto">
+
+<head>
+    <script src="~/js/color-modes.js"></script>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GalloFlix | @ViewData["Title"]</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+    <link rel="icon" type="image/x-icon" href="~/img/logosmall.png">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+    @await RenderSectionAsync("Styles", required: false)
+    <meta name="theme-color" content="#712cf9">
+</head>
+
+<body>
+    <partial name="_StyleSwitcher"></partial>
+    <partial name="_Loading"></partial>
+
+    <div class="container-fluid p-0">
+        <main role="main" class="d-flex flex-nowrap">
+            <div id="sidebar" class="d-flex flex-column flex-shrink-0 p-3 bg-body-tertiary" style="width: 280px;">
+                <a asp-action="Index" asp-controller="Admin"
+                    class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-body-emphasis text-decoration-none">
+                    <img class="img-fluid" src="~/img/logo.png" alt="Logo">
+                </a>
+                <hr>
+                <ul class="nav nav-pills flex-column mb-auto">
+                    <li class="nav-item">
+                        <a asp-action="Index" asp-controller="Admin" class="nav-link @(ViewBag.Title == "Dashboard" ? "active" : "link-body-emphasis")">
+                            <i class="bi bi-speedometer2 me-2"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-link @(ViewBag.Title == "Filmes" ? "active" : "link-body-emphasis")">
+                            <i class="bi bi-film me-2"></i>
+                            Filmes
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-link @(ViewBag.Title == "Genêros" ? "active" : "link-body-emphasis")">
+                            <i class="bi bi-list-stars me-2"></i>
+                            Genêros
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-link @(ViewBag.Title == "Usuários" ? "active" : "link-body-emphasis")">
+                            <i class="bi bi-people-fill me-2"></i>
+                            Usuários
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-link @(ViewBag.Title == "Comentários" ? "active" : "link-body-emphasis")">
+                            <i class="bi bi-chat-text-fill me-2"></i>
+                            Comentários
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-link @(ViewBag.Title == "Avaliações" ? "active" : "link-body-emphasis")">
+                            <i class="bi bi-stars me-2"></i>
+                            Avaliações
+                        </a>
+                    </li>
+                </ul>
+                <hr>
+                <div class="dropdown">
+                    <a href="#"
+                        class="d-flex align-items-center link-body-emphasis text-decoration-none dropdown-toggle"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                        <img src="@profilePicture" alt="Foto de Perfil" width="40" class="image-rounded me-3">
+                        <strong>@User.Identity?.Name</strong>
+                    </a>
+                    <ul class="dropdown-menu text-small shadow">
+                        <li><a class="dropdown-item" href="#">Perfil</a></li>
+                        <li><a class="dropdown-item" href="#">Configurações</a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li>
+                            <form class="form-inline" asp-controller="Account"
+                                asp-action="Logout">
+                                <button type="submit" class="dropdown-item">
+                                    Sair
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="container-fluid py-2">
+                <nav class="navbar sticky-top border-bottom">
+                    <button id="sidebarToggler" class="navbar-toggler border-0 p-0" type="button" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                </nav>
+                <div class="container-fluid p-5 pt-3">
+                    @RenderBody()
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+
+</html>
+
+
+-- Abrir e alterar o arquivo Views\Admin\Index.cshtml:
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Área Administrativa</h1>
+</div>
+
+
+-- Salve tudo e execute. Faça login, observe a navbar, tente entrar na área administrativa
+
+
+-- Abra o terminal e execute os comandos abaixo:
+dotnet add package Microsoft.EntityFrameworkCore --version 6.0.20
+dotnet add package Microsoft.EntityFrameworkCore.Design --version 6.0.20
+dotnet add package Microsoft.EntityFrameworkCore.SqlServer --version 6.0.20
+
+dotnet add package Microsoft.VisualStudio.Web.CodeGeneration.Design --version 6.0.15
+
+dotnet tool install -g dotnet-aspnet-codegenerator
+
+
+-- A atualização dos pacotes e a ferramenta de geração de códigos está instalada, agora é só gerar os controllers e views do CRUD:
+dotnet aspnet-codegenerator controller -name GenresController -m Genre -dc AppDbContext --relativeFolderPath Controllers -l "~/Views/Shared/_LayoutAdmin.cshtml" --referenceScriptLibraries
+dotnet aspnet-codegenerator controller -name MoviesController -m Movie -dc AppDbContext --relativeFolderPath Controllers -l "~/Views/Shared/_LayoutAdmin.cshtml" --referenceScriptLibraries
+
+
+-- Abrir e alterar as linhas entre 46 a 57, do arquivo Views\Shared\_LayoutAdmin.cshtml, com o código abaixo:
+    <li>
+        <a asp-action="Index" asp-controller="Movies" class="nav-link @(ViewBag.Title == "Filmes" ? "active" : "link-body-emphasis")">
+            <i class="bi bi-film me-2"></i>
+            Filmes
+        </a>
+    </li>
+    <li>
+        <a asp-action="Index" asp-controller="Genres" class="nav-link @(ViewBag.Title == "Genêros" ? "active" : "link-body-emphasis")">
+            <i class="bi bi-list-stars me-2"></i>
+            Genêros
+        </a>
+    </li>
+
+
+-- Salve tudo e execute. Faça login entre na área administrativa e clique em Genêros e depois Filmes
+
+
+

@@ -1,0 +1,28 @@
+@model GalloFlix.Models.Movie
+@{
+    ViewData["Title"] = "Home";
+}
+
+<div class="album py-5">
+    <div class="text-center mb-3">
+        <h1>@Model.Title</h1>
+        <h3>@Model.OriginalTitle</h1>
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3">
+                <img src="@Model.Image" alt="@Model.Title" class="img-fluid">
+            </div>
+            <div class="col-md-9">
+                <p>@Model.Synopsis</p>
+                <p>Duração: @Model.HourDuration</p>
+                <p>Classificação: @Model.Classification</p>
+                @foreach(MovieGenre movieGenre in Model.Genres)
+                {
+                    <span class="badge bg-secondary me-2">@movieGenre.Genre.Name</span>
+                }
+            </div>
+        </div>
+    </div>
+</div>

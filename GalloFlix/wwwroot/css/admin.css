@@ -1,0 +1,21 @@
+main {
+    min-height: 100vh;
+}
+
+.nav-link {
+    margin-bottom: 5px;
+}
+
+.nav-link:hover {
+    background-color: darkred !important;
+    color: white;
+}
+
+.nav-link.active {
+    background-color: rgb(104, 4, 4) !important; 
+    color: white;
+}
+
+.bi {
+    font-size: 20px;
+}
