@@ -1,16 +1,21 @@
 @model IEnumerable<GalloFlix.Models.Movie>
-
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Filmes";
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
 }
+@section Styles {
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.css" />
+}
+@section Scripts {
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.js"></script>
+    <script src="~/js/datatables.js"></script>
+}
 
-<h1>Index</h1>
-
-<p>
-    <a asp-action="Create">Create New</a>
+<h1 class="display-4">Lista de Filmes</h1>
+<p class="py-3">
+    <a class="btn btn-secondary" asp-action="Create"><i class="bi bi-plus-circle-fill"></i> Adicionar</a>
 </p>
-<table class="table">
+<table id="myTable" class="table w-100">
     <thead>
         <tr>
             <th>
@@ -20,53 +25,42 @@
                 @Html.DisplayNameFor(model => model.OriginalTitle)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Synopsis)
-            </th>
-            <th>
                 @Html.DisplayNameFor(model => model.MovieYear)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Duration)
+                @Html.DisplayNameFor(model => model.HourDuration)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.AgeRating)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Image)
-            </th>
-            <th></th>
+            <th>Ações</th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Title)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.OriginalTitle)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Synopsis)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.MovieYear)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Duration)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.AgeRating)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Image)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Title)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.OriginalTitle)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.MovieYear)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.HourDuration)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Classification)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id" data-bs-toggle="tooltip" data-bs-title="Editar Filme"><i class="bi bi-pencil-fill me-2"></i></a> 
+                    <a asp-action="Details" asp-route-id="@item.Id" data-bs-toggle="tooltip" data-bs-title="Exibir Detalhes"><i class="bi bi-search me-2"></i></a> 
+                    <a asp-action="Delete" asp-route-id="@item.Id" data-bs-toggle="tooltip" data-bs-title="Excluir Filme"><i class="bi bi-trash-fill"></i></a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>

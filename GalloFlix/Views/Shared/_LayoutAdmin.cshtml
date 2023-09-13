@@ -38,24 +38,21 @@
                 <hr>
                 <ul class="nav nav-pills flex-column mb-auto">
                     <li class="nav-item">
-                        <a asp-action="Index" asp-controller="Admin"
-                            class="nav-link @(ViewBag.Title == "Dashboard" ? "active" : "link-body-emphasis")">
+                        <a asp-action="Index" asp-controller="Admin" class="nav-link @(ViewBag.Title == "Dashboard" ? "active" : "link-body-emphasis")">
                             <i class="bi bi-speedometer2 me-2"></i>
                             Dashboard
                         </a>
                     </li>
                     <li>
-                        <a asp-action="Index" asp-controller="Movies"
-                            class="nav-link @(ViewBag.Title == "Filmes" ? "active" : "link-body-emphasis")">
+                        <a asp-action="Index" asp-controller="Movies" class="nav-link @(ViewBag.Title == "Filmes" ? "active" : "link-body-emphasis")">
                             <i class="bi bi-film me-2"></i>
                             Filmes
                         </a>
                     </li>
                     <li>
-                        <a asp-action="Index" asp-controller="Genres"
-                            class="nav-link @(ViewBag.Title == "Genêros" ? "active" : "link-body-emphasis")">
+                        <a asp-action="Index" asp-controller="Genres" class="nav-link @(ViewBag.Title == "Gêneros" ? "active" : "link-body-emphasis")">
                             <i class="bi bi-list-stars me-2"></i>
-                            Genêros
+                            Gêneros
                         </a>
                     </li>
                     <li>
@@ -65,8 +62,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="#"
-                            class="nav-link @(ViewBag.Title == "Comentários" ? "active" : "link-body-emphasis")">
+                        <a href="#" class="nav-link @(ViewBag.Title == "Comentários" ? "active" : "link-body-emphasis")">
                             <i class="bi bi-chat-text-fill me-2"></i>
                             Comentários
                         </a>
@@ -93,7 +89,8 @@
                             <hr class="dropdown-divider">
                         </li>
                         <li>
-                            <form class="form-inline" asp-controller="Account" asp-action="Logout">
+                            <form class="form-inline" asp-controller="Account"
+                                asp-action="Logout">
                                 <button type="submit" class="dropdown-item">
                                     Sair
                                 </button>
@@ -105,12 +102,11 @@
 
             <div class="container-fluid py-2">
                 <nav class="navbar sticky-top border-bottom">
-                    <button id="sidebarToggler" class="navbar-toggler border-0 p-0" type="button"
-                        aria-label="Toggle navigation">
+                    <button id="sidebarToggler" class="navbar-toggler border-0 p-0" type="button" aria-label="Toggle navigation">
                         <span class="navbar-toggler-icon"></span>
                     </button>
                 </nav>
-                <div class="container-fluid p-5 pt-3">
+                <div class="container-fluid p-3">
                     @RenderBody()
                 </div>
             </div>
